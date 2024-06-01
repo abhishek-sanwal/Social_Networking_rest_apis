@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 import json
 
 
-class UserSearchApi(APIView):
+class UserSearchApiView(APIView):
 
     permission_classes = [IsAuthenticated]
 
@@ -65,7 +65,7 @@ class UserSearchApi(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SendFriendRequest(CreateAPIView):
+class SendFriendRequestView(CreateAPIView):
 
     serializer_class = PendingFriendRequestsSerializer
     permission_classes = [IsAuthenticated]
@@ -97,7 +97,7 @@ class SendFriendRequest(CreateAPIView):
 
 
 # Accept friend request of particular user
-class AcceptFriendRequest(CreateAPIView):
+class AcceptFriendRequestView(CreateAPIView):
 
     serializer_class = AcceptedFriendRequestsSerializer
 
@@ -128,10 +128,47 @@ class AcceptFriendRequest(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RejectFriendRequest(CreateAPIView):
+class RejectFriendRequestView(CreateAPIView):
 
     serializer_class = RejectedFriendRequestsSerializer
 
     def post(self, request):
 
-        pass
+        email = request.data["email"].lower()
+        sender = SocialProfile.objects.get(user=request.user)
+        receiver = SocialProfile.objects.get(user__email__exact=email)
+        pending = PendingFriendRequests.objects.filter(
+            Q(sender=sender) | Q(receiver=receiver)).first()
+
+        if pending is None:
+            return Response(json.dumps({
+                "text": "Friend Request doesn't exist in system, status = \
+                    status.HTTP_400_BAD_REQUEST"
+            }))
+
+        serializer = RejectedFriendRequestsSerializer(data=request.data, context={
+            "sender": sender, "receiver": receiver
+        })
+
+        if serializer.is_valid():
+            pending.delete()
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ListAcceptedFriendRequestsView(generics.ListAPIView):
+
+    pass
+
+
+class ListRejectedFriendRequestsView(generics.ListAPIView):
+
+    pass
+
+
+class ListPendingFriendRequestsView(generics.ListAPIView):
+
+    pass

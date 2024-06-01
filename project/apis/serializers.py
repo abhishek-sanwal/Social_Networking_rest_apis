@@ -42,6 +42,15 @@ class RejectedFriendRequestsSerializer(ModelSerializer):
         fields = ["sender", "receiver", "message", "time"]
         read_only_fields = ["sender", "receiver"]
 
+    def create(self, validated_data):
+
+        sender_user = self.context.get("sender")
+        print(sender_user, "I am sender user")
+        receiver_user = self.context.get("receiver")
+        print(receiver_user, " I am receiver user")
+        return RejectedFriendRequests.objects.create(sender=sender_user,
+                                                     receiver=receiver_user, **validated_data)
+
 
 class AcceptedFriendRequestsSerializer(ModelSerializer):
 
