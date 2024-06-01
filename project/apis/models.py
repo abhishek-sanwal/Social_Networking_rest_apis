@@ -7,13 +7,17 @@ from django.contrib.auth.models import User
 class SocialProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+
+        return self.user.email
+
 
 class Requests(models.Model):
     sender = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_sent_requests")
+        SocialProfile, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_sent_requests")
     receiver = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_received_requests")
-    message = models.CharField(max_length=300)
+        SocialProfile, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_received_requests")
+    message = models.CharField(max_length=300, blank=False, null=False)
     time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
