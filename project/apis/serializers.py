@@ -4,6 +4,14 @@ from django.dispatch import Signal
 from .models import SocialProfile, AcceptdFriendRequests, RejectedFriendRequests, PendingFriendRequests
 
 
+class SocialProfileSerializer(ModelSerializer):
+
+    class Meta:
+
+        model = SocialProfile
+        fields = ["user"]
+
+
 class PendingFriendRequestsSerializer(ModelSerializer):
 
     class Meta:

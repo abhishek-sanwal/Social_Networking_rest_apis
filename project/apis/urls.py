@@ -1,6 +1,7 @@
 
 from django.urls import path
+from .views import UserSearchApi
 urlpatterns = [
 
-    path('send/')
+    path('search/', UserSearchApi.as_view(), name="search-api")
 ]
