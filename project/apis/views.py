@@ -7,11 +7,14 @@ from .serializers import PendingFriendRequestsSerializer, \
 # Create your views here.
 from rest_framework.generics import CreateAPIView, ListCreateAPIView
 from django.contrib.auth.models import User
+from django.db.models import Q
+
 from rest_framework import filters
 from rest_framework.views import APIView
 from rest_framework import generics
 
-from .models import SocialProfile
+from .models import SocialProfile, PendingFriendRequests, AcceptdFriendRequests, \
+    RejectedFriendRequests
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -78,7 +81,7 @@ class SendFriendRequest(CreateAPIView):
         if receiver_user is None:
 
             return Response(json.loads({
-                "Provided email is not a valid user."
+                "text": "Provided email is not a valid user."
             }), status=status.HTTP_400_BAD_REQUEST)
 
         serializer = PendingFriendRequestsSerializer(data=request.data, context={
@@ -93,10 +96,36 @@ class SendFriendRequest(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Accept friend request of particular user
 class AcceptFriendRequest(CreateAPIView):
 
     serializer_class = AcceptedFriendRequestsSerializer
-    pass
+
+    def post(self, request):
+
+        email = request.data["email"].lower()
+        sender = SocialProfile.objects.get(user=request.user)
+        receiver = SocialProfile.objects.get(user__email__exact=email)
+        pending = PendingFriendRequests.objects.filter(
+            Q(sender=sender) | Q(receiver=receiver)).first()
+
+        if pending is None:
+            return Response(json.dumps({
+                "text": "Friend Request doesn't exist in system, status = \
+                    status.HTTP_400_BAD_REQUEST"
+            }))
+
+        serializer = AcceptedFriendRequestsSerializer(data=request.data, context={
+            "sender": sender, "receiver": receiver
+        })
+
+        if serializer.is_valid():
+            pending.delete()
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RejectFriendRequest(CreateAPIView):
