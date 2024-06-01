@@ -11,7 +11,6 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-
     path('login/', auth_views.LoginView.as_view(template_name="login.html"), name="login"),
     path('signup/', views.signup, name="signup"),
     path('signup2/', views.SignupApi.as_view(), name="signup-api"),
