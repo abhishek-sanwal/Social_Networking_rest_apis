@@ -1,8 +1,16 @@
-from json import dumps
+import json
+import re
 
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.db.models import Q
+
+from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+
 
 from .serializers import PendingFriendRequestsSerializer, \
     AcceptedFriendRequestsSerializer, RejectedFriendRequestsSerializer, \
@@ -13,13 +21,6 @@ from .models import SocialProfile, PendingFriendRequests, AcceptdFriendRequests,
 
 from .paginators import SmallResultsSetPagination
 from .throttlers import SendApiThrottle
-
-from rest_framework.generics import CreateAPIView
-from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 
 
 class UserSearchApiView(APIView):
@@ -37,7 +38,9 @@ class UserSearchApiView(APIView):
         search_word = request.data["search_word"]
         # print(search_word)
         # If search_word is a email
-        if "@" in search_word:
+        email_pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        match = re.search(email_pattern, search_word)
+        if match is not None:
             search_word = search_word.lower()
             social_user = SocialProfile.objects.filter(
                 user__email__exact=search_word)
@@ -67,7 +70,7 @@ class UserSearchApiView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SendFriendRequestView(CreateAPIView):
+class SendFriendRequestView(generics.CreateAPIView):
 
     serializer_class = PendingFriendRequestsSerializer
     permission_classes = [IsAuthenticated]
@@ -100,7 +103,7 @@ class SendFriendRequestView(CreateAPIView):
 
 
 # Accept friend request of particular user
-class AcceptFriendRequestView(CreateAPIView):
+class AcceptFriendRequestView(generics.CreateAPIView):
 
     serializer_class = AcceptedFriendRequestsSerializer
     permission_classes = [IsAuthenticated]
@@ -132,7 +135,7 @@ class AcceptFriendRequestView(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RejectFriendRequestView(CreateAPIView):
+class RejectFriendRequestView(generics.CreateAPIView):
 
     serializer_class = RejectedFriendRequestsSerializer
     permission_classes = [IsAuthenticated]
