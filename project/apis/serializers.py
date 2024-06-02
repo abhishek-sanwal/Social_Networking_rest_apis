@@ -1,6 +1,7 @@
+
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from django.dispatch import Signal
+
 from .models import SocialProfile, AcceptdFriendRequests, RejectedFriendRequests, \
     PendingFriendRequests
 
