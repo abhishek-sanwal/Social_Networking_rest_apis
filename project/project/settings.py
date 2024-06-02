@@ -31,9 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
-    'users',
-    'apis',
+    'rest_framework',  # included rest_framework for apis
+    'users',  # django app
+    'apis',  # django app
+    'corsheaders',  # corsheaders to resolve cross origin issues
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Added Cors middleware layer
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,12 +86,25 @@ DATABASES = {
     }
 }
 
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        # Set local memory as cache
         "LOCATION": "unique-snowflake",
     }
 }
+
+
+CORS_ORIGIN_ALLOW_ALL = True  # Any request from cross origin can make requests
+
+'''
+# Uncomment the code to use with ReactJs
+# ALLOWED_HOSTS = ["localhost"]
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:3000',  # for localhost (REACT Default)
+# )
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -131,9 +147,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#
-LOGIN_REDIRECT_URL = ""
-LOGIN_URL = "login/"
+LOGIN_REDIRECT_URL = ""  # Default redirect url after logging in as user
+LOGIN_URL = "login/"  # Default path to redirect user for login
 
 REST_FRAMEWORK = {
 
@@ -143,19 +158,19 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    ],  # Using JWtauth class as default auth
 
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
-    ],
+    ],  # Using default throttle classed to rate-limit our apis
 
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
         'user': '100/min',
-    },
+    },  # Changed default api rates for anonymous users and autheticated users
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 20,  # Default pagination class and page size
 
 }

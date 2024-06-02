@@ -103,6 +103,7 @@ class SendFriendRequestView(CreateAPIView):
 class AcceptFriendRequestView(CreateAPIView):
 
     serializer_class = AcceptedFriendRequestsSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
 
@@ -134,6 +135,7 @@ class AcceptFriendRequestView(CreateAPIView):
 class RejectFriendRequestView(CreateAPIView):
 
     serializer_class = RejectedFriendRequestsSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
 
@@ -165,6 +167,7 @@ class RejectFriendRequestView(CreateAPIView):
 class ListAcceptedFriendRequestsView(generics.ListAPIView):
 
     serializer_class = AcceptedFriendRequestsSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
@@ -179,6 +182,7 @@ class ListAcceptedFriendRequestsView(generics.ListAPIView):
 class ListRejectedFriendRequestsView(generics.ListAPIView):
 
     serializer_class = RejectedFriendRequestsSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
@@ -193,6 +197,7 @@ class ListRejectedFriendRequestsView(generics.ListAPIView):
 class ListPendingFriendRequestsView(generics.ListAPIView):
 
     serializer_class = PendingFriendRequestsSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
