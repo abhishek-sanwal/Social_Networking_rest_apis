@@ -21,10 +21,13 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 import json
 
+from .paginators import SmallResultsSetPagination
+
 
 class UserSearchApiView(APIView):
 
     permission_classes = [IsAuthenticated]
+    pagination_classes = SmallResultsSetPagination
 
     def get(self, request):
 
@@ -37,6 +40,7 @@ class UserSearchApiView(APIView):
         # print(search_word)
         # If search_word is a email
         if "@" in search_word:
+            search_word = search_word.lower()
             social_user = SocialProfile.objects.filter(
                 user__email__exact=search_word)
 
@@ -73,7 +77,7 @@ class SendFriendRequestView(CreateAPIView):
     def post(self, request):
 
         print(request.data)
-        email = request.data["email"]
+        email = request.data["email"].lower()
         print("email received")
         receiver_user = SocialProfile.objects.filter(
             user__email__exact=email).first()
@@ -161,14 +165,41 @@ class RejectFriendRequestView(CreateAPIView):
 
 class ListAcceptedFriendRequestsView(generics.ListAPIView):
 
-    pass
+    serializer_class = AcceptedFriendRequestsSerializer
+
+    def get_queryset(self):
+
+        social_user = SocialProfile.objects.get(user=self.request.user)
+
+        accepted_friend_requests = AcceptdFriendRequests.objects.filter(
+            sender=social_user)
+
+        return accepted_friend_requests
 
 
 class ListRejectedFriendRequestsView(generics.ListAPIView):
 
-    pass
+    serializer_class = RejectedFriendRequestsSerializer
+
+    def get_queryset(self):
+
+        social_user = SocialProfile.objects.get(user=self.request.user)
+
+        rejected_friend_requests = RejectedFriendRequests.objects.filter(
+            sender=social_user)
+
+        return rejected_friend_requests
 
 
 class ListPendingFriendRequestsView(generics.ListAPIView):
 
-    pass
+    serializer_class = PendingFriendRequestsSerializer
+
+    def get_queryset(self):
+
+        social_user = SocialProfile.objects.get(user=self.request.user)
+
+        pending_friend_requests = PendingFriendRequests.objects.filter(
+            receiver=social_user)
+
+        return pending_friend_requests

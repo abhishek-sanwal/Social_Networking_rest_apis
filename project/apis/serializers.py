@@ -1,10 +1,13 @@
 from rest_framework.serializers import ModelSerializer
-
+from rest_framework import serializers
 from django.dispatch import Signal
-from .models import SocialProfile, AcceptdFriendRequests, RejectedFriendRequests, PendingFriendRequests
+from .models import SocialProfile, AcceptdFriendRequests, RejectedFriendRequests, \
+    PendingFriendRequests
 
 
 class SocialProfileSerializer(ModelSerializer):
+
+    user = serializers.ReadOnlyField(source='User.email')
 
     class Meta:
 
@@ -27,9 +30,9 @@ class PendingFriendRequestsSerializer(ModelSerializer):
         user = request.user
 
         sender_user = SocialProfile.objects.filter(user=user).first()
-        print(sender_user, "I am sender user")
+        print(sender_user, "I am a sender user")
         receiver_user = self.context.get("receiver_user")
-        print(receiver_user, " I am receiver user")
+        print(receiver_user, " I am a receiver user")
         return PendingFriendRequests.objects.create(sender=sender_user,
                                                     receiver=receiver_user, **validated_data)
 
