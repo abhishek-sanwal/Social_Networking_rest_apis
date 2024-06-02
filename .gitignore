@@ -1,4 +1,4 @@
 .djangoenv
-*/__pycache__
-*/migrations
+project/*/__pycache__
+project/*/migrations
 db.sqlite3
