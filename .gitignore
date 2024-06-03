@@ -2,3 +2,8 @@
 project/*/__pycache__
 project/*/migrations
 db.sqlite3
+.env
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
