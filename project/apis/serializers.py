@@ -1,4 +1,4 @@
-
+from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 
@@ -8,7 +8,8 @@ from .models import SocialProfile, AcceptdFriendRequests, RejectedFriendRequests
 
 class SocialProfileSerializer(ModelSerializer):
 
-    user = serializers.ReadOnlyField(source='User.email')
+    user = serializers.SlugRelatedField(slug_field='email',
+                                        queryset=User.objects.all())
 
     class Meta:
 

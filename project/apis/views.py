@@ -58,13 +58,12 @@ class UserSearchApiView(APIView):
 
             print(search_word, "This is search word")
             social_user = SocialProfile.objects.filter(
-                user__username__exact=search_word).first()
+                user__username__exact=search_word)
             print(social_user, social_user is None)
             if not social_user:
                 print("Contains")
                 social_user = SocialProfile.objects.filter(
                     user__username__contains=search_word)
-
             serializer = SocialProfileSerializer(social_user, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
