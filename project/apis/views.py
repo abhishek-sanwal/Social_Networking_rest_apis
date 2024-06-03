@@ -83,12 +83,37 @@ class SendFriendRequestView(generics.CreateAPIView):
         print("email received")
         receiver_user = SocialProfile.objects.filter(
             user__email__exact=email).first()
-
+        print(receiver_user)
         if receiver_user is None:
+            data = "Provided email is not a valid user"
+            return Response(json.loads(data), status=status.HTTP_400_BAD_REQUEST)
 
-            return Response(json.loads({
-                "text": "Provided email is not a valid user."
-            }), status=status.HTTP_400_BAD_REQUEST)
+        sender_user = SocialProfile.objects.filter(user=request.user).first()
+
+        accepted_friend_request = AcceptdFriendRequests.objects.filter(
+            Q(sender=sender_user) & Q(receiver=receiver_user)).first()
+
+        rejected_friend_request = RejectedFriendRequests.objects.filter(
+            Q(sender=sender_user) & Q(receiver=receiver_user)).first()
+
+        pending_friend_request = PendingFriendRequests.objects.filter(
+            Q(sender=sender_user) & Q(receiver=receiver_user)).first()
+
+        print(accepted_friend_request,
+              pending_friend_request, rejected_friend_request)
+        # If friend request is already accepted.
+        if accepted_friend_request is not None:
+
+            return Response(json.dumps("You are already friends"), status=status.HTTP_400_BAD_REQUEST)
+
+        # If friend request is already rejected.
+        if rejected_friend_request is not None:
+
+            return Response(json.dumps("You can not send friend request now"), status=status.HTTP_400_BAD_REQUEST)
+
+        if pending_friend_request is not None:
+
+            return Response(json.dumps(f"Friend Request is already pending with {receiver_user.user.email}"), status=status.HTTP_400_BAD_REQUEST)
 
         serializer = PendingFriendRequestsSerializer(data=request.data, context={
             "request": request, "receiver_user": receiver_user
@@ -110,20 +135,19 @@ class AcceptFriendRequestView(generics.CreateAPIView):
 
     def post(self, request):
 
+        # Email will be the person whose request I want to accept
         email = request.data["email"].lower()
-        sender = SocialProfile.objects.get(user=request.user)
-        receiver = SocialProfile.objects.get(user__email__exact=email)
+        sender = SocialProfile.objects.get(user__email__exact=email)
+        receiver = SocialProfile.objects.get(user=request.user)
         pending = PendingFriendRequests.objects.filter(
-            Q(sender=sender) | Q(receiver=receiver)).first()
+            Q(sender=sender) & Q(receiver=receiver)).first()
 
         if pending is None:
-            return Response(json.dumps({
-                "text": "Friend Request doesn't exist in system, status = \
-                    status.HTTP_400_BAD_REQUEST"
-            }))
+            return Response(json.dumps("Friend Request doesn't exist in system"), status=status.HTTP_400_BAD_REQUEST
+                            )
 
         serializer = AcceptedFriendRequestsSerializer(data=request.data, context={
-            "sender": sender, "receiver": receiver
+            "sender": receiver, "receiver": sender
         })
 
         if serializer.is_valid():
@@ -143,19 +167,16 @@ class RejectFriendRequestView(generics.CreateAPIView):
     def post(self, request):
 
         email = request.data["email"].lower()
-        sender = SocialProfile.objects.get(user=request.user)
-        receiver = SocialProfile.objects.get(user__email__exact=email)
+        sender = SocialProfile.objects.get(user__email__exact=email)
+        receiver = SocialProfile.objects.get(user=request.user)
         pending = PendingFriendRequests.objects.filter(
-            Q(sender=sender) | Q(receiver=receiver)).first()
+            Q(sender=sender) & Q(receiver=receiver)).first()
 
         if pending is None:
-            return Response(json.dumps({
-                "text": "Friend Request doesn't exist in system, status = \
-                    status.HTTP_400_BAD_REQUEST"
-            }))
+            return Response(json.dumps("Friend Request doesn't exist in system"), status=status.HTTP_400_BAD_REQUEST)
 
         serializer = RejectedFriendRequestsSerializer(data=request.data, context={
-            "sender": sender, "receiver": receiver
+            "sender": receiver, "receiver": sender
         })
 
         if serializer.is_valid():
