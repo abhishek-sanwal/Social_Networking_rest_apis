@@ -1,5 +1,7 @@
 # Django App for Social_Networking
 
+## [Postman api collection] (https://www.postman.com/abhi-sanwal/workspace/public/overview)
+
 ### Step 1 - Clone the repo
 
 ```
@@ -8,7 +10,7 @@ git clone https://github.com/abhishek-sanwal/Social_Networking_rest_apis.git
 
 ### If Docker Dekstop app is installed on your machine.
 
-Step 2- Run Docker container.
+Step 2- Go to the directory where docker-compose.yaml file is present and run projetc in docker container.
 
 ```
 docker-compose up
@@ -45,7 +47,7 @@ Step 2 - Create virtual enviroment using python
 
   ```
 
-- For Macos
+- For Windows
 
   ```
       <enviroment_name>/Scripts/activate
