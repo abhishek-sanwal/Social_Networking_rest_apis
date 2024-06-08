@@ -2,6 +2,25 @@
 
 ## [Postman api collection] (https://www.postman.com/abhi-sanwal/workspace/public/overview)
 
+=======
+
+### This app provides below functionalites:
+
+- New user registration
+- Login
+- Apis to search users by username or email.
+- Apis to send, accept and reject friend requets.
+- List pending friend requests of a user.
+- List accepted friend requests of a user.
+- List rejected friend requests of a user.
+- Api throttling (Rate limit)
+
+Check this document for apis request and response samples. For high level understanding visit(https://rb.gy/p6j9ig)
+
+### Exceot login and signup all apis are for authenticated users. They need to send jwt token to autheticate them.
+
+> > > > > > > fde99e4 (Updated readme file)
+
 ### Step 1 - Clone the repo
 
 ```
@@ -17,9 +36,13 @@ docker-compose up
 
 ```
 
-Now server should be started at local host port 8000
+Now server should be started at local host port 8000 .Now you can test apis.
 
-Now you can test apis.
+To stop the docker container
+
+```
+docker-compose down
+```
 
 ### If docker Dekstop is not instlled simply create a virtual enviroment using python
 
